@@ -34,9 +34,9 @@ class Recognizer {
 
   void loadRegisteredFaces() async {
     final allRows = await dbHelper.queryAllRows();
-   // debugPrint('query all rows:');
+    // debugPrint('query all rows:');
     for (final row in allRows) {
-    //  debugPrint(row.toString());
+      //  debugPrint(row.toString());
       print(row[DatabaseHelper.columnName]);
       String name = row[DatabaseHelper.columnName];
       List<double> embd = row[DatabaseHelper.columnEmbedding].split(',').map((e) => double.parse(e)).toList().cast<double>();
@@ -45,11 +45,11 @@ class Recognizer {
     }
   }
 
-  void registerFaceInDB(String name, String embedding) async {
+  void registerFaceInDB(String name, List<double> embedding) async {
     // row to insert
     Map<String, dynamic> row = {
       DatabaseHelper.columnName: name,
-      DatabaseHelper.columnEmbedding: embedding
+      DatabaseHelper.columnEmbedding: embedding.join(",")
     };
     final id = await dbHelper.insert(row);
     print('inserted row id: $id');
@@ -69,14 +69,14 @@ class Recognizer {
     List<double> flattenedList = resizedImage.data!.expand((channel) => [channel.r, channel.g, channel.b]).map((value) => value.toDouble()).toList();
     Float32List float32Array = Float32List.fromList(flattenedList);
     int channels = 3;
-    int height = 112;
-    int width = 112;
+    int height = HEIGHT;
+    int width = WIDTH;
     Float32List reshapedArray = Float32List(1 * height * width * channels);
     for (int c = 0; c < channels; c++) {
       for (int h = 0; h < height; h++) {
         for (int w = 0; w < width; w++) {
           int index = c * height * width + h * width + w;
-          reshapedArray[index] = float32Array[c * height * width + h * width + w];
+          reshapedArray[index] = (float32Array[c * height * width + h * width + w]-127.5)/127.5;
         }
       }
     }
@@ -99,13 +99,13 @@ class Recognizer {
     print('Time to run inference: $run ms$output');
 
     //TODO convert dynamic list to double list
-     List<double> outputArray = output.first.cast<double>();
+    List<double> outputArray = output.first.cast<double>();
 
-     //TODO looks for the nearest embeeding in the database and returns the pair
-     Pair pair = findNearest(outputArray);
-     print("distance= ${pair.distance}");
+    //TODO looks for the nearest embeeding in the database and returns the pair
+    Pair pair = findNearest(outputArray);
+    print("distance= ${pair.distance}");
 
-     return Recognition(pair.name,location,outputArray,pair.distance);
+    return Recognition(pair.name,location,outputArray,pair.distance);
   }
 
   //TODO  looks for the nearest embeeding in the database and returns the pair which contain information of registered face with which face is most similar
@@ -135,9 +135,9 @@ class Recognizer {
 
 }
 class Pair{
-   String name;
-   double distance;
-   Pair(this.name,this.distance);
+  String name;
+  double distance;
+  Pair(this.name,this.distance);
 }
 
 

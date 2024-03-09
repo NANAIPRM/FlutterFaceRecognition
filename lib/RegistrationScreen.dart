@@ -41,7 +41,7 @@ class _HomePageState extends State<RegistrationScreen> {
     faceDetector = FaceDetector(options: options);
 
     //TODO initialize face recognizer
-   recognizer = Recognizer();
+    recognizer = Recognizer();
   }
 
   //TODO capture image using camera
@@ -58,7 +58,7 @@ class _HomePageState extends State<RegistrationScreen> {
   //TODO choose image using gallery
   _imgFromGallery() async {
     XFile? pickedFile =
-        await imagePicker.pickImage(source: ImageSource.gallery);
+    await imagePicker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState((){
         _image = File(pickedFile.path);
@@ -96,6 +96,7 @@ class _HomePageState extends State<RegistrationScreen> {
       img.Image? faceImg = img.decodeImage(bytes!);
       img.Image croppedFace = img.copyCrop(faceImg!, x: left.toInt(), y: top.toInt(), width: width.toInt(), height: height.toInt());
       Recognition recognition = recognizer.recognize(croppedFace, boundingBox);
+      showFaceRegistrationDialogue(Uint8List.fromList(img.encodeBmp(croppedFace)), recognition);
 
       // final double? rotX = face.headEulerAngleX; // Head is tilted up and down rotX degrees
       // final double? rotY = face.headEulerAngleY; // Head is rotated to the right rotY degrees
@@ -135,47 +136,47 @@ class _HomePageState extends State<RegistrationScreen> {
   //TODO perform Face Recognition
 
   //TODO Face Registration Dialogue
-  // TextEditingController textEditingController = TextEditingController();
-  // showFaceRegistrationDialogue(Uint8List cropedFace, Recognition recognition){
-  //   showDialog(
-  //     context: context,
-  //     builder: (ctx) => AlertDialog(
-  //       title: const Text("Face Registration",textAlign: TextAlign.center),alignment: Alignment.center,
-  //       content: SizedBox(
-  //         height: 340,
-  //         child: Column(
-  //           crossAxisAlignment: CrossAxisAlignment.center,
-  //           children: [
-  //             const SizedBox(height: 20,),
-  //             Image.memory(
-  //               cropedFace,
-  //               width: 200,
-  //               height: 200,
-  //             ),
-  //             SizedBox(
-  //               width: 200,
-  //               child: TextField(
-  //                 controller: textEditingController,
-  //                   decoration: const InputDecoration( fillColor: Colors.white, filled: true,hintText: "Enter Name")
-  //               ),
-  //             ),
-  //             const SizedBox(height: 10,),
-  //             ElevatedButton(
-  //                 onPressed: () {
-  //                   recognizer.registerFaceInDB(textEditingController.text, recognition.embeddings);
-  //                   textEditingController.text = "";
-  //                   Navigator.pop(context);
-  //                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-  //                     content: Text("Face Registered"),
-  //                   ));
-  //                 },style: ElevatedButton.styleFrom(primary:Colors.blue,minimumSize: const Size(200,40)),
-  //                 child: const Text("Register"))
-  //           ],
-  //         ),
-  //       ),contentPadding: EdgeInsets.zero,
-  //     ),
-  //   );
-  // }
+  TextEditingController textEditingController = TextEditingController();
+  showFaceRegistrationDialogue(Uint8List cropedFace, Recognition recognition){
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Face Registration",textAlign: TextAlign.center),alignment: Alignment.center,
+        content: SizedBox(
+          height: 340,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 20,),
+              Image.memory(
+                cropedFace,
+                width: 200,
+                height: 200,
+              ),
+              SizedBox(
+                width: 200,
+                child: TextField(
+                    controller: textEditingController,
+                    decoration: const InputDecoration( fillColor: Colors.white, filled: true,hintText: "Enter Name")
+                ),
+              ),
+              const SizedBox(height: 10,),
+              ElevatedButton(
+                  onPressed: () {
+                    recognizer.registerFaceInDB(textEditingController.text, recognition.embeddings);
+                    textEditingController.text = "";
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text("Face Registered"),
+                    ));
+                  },style: ElevatedButton.styleFrom(primary:Colors.blue,minimumSize: const Size(200,40)),
+                  child: const Text("Register"))
+            ],
+          ),
+        ),contentPadding: EdgeInsets.zero,
+      ),
+    );
+  }
   //TODO draw rectangles
   var image;
   drawRectangleAroundFaces() async {
@@ -203,28 +204,28 @@ class _HomePageState extends State<RegistrationScreen> {
           //         height: screenWidth - 50,
           //         child: Image.file(_image!),
           //       )
-              Container(
-                margin: const EdgeInsets.only(
-                    top: 60, left: 30, right: 30, bottom: 0),
-                child: FittedBox(
-                  child: SizedBox(
-                    width: image.width.toDouble(),
-                    height: image.width.toDouble(),
-                    child: CustomPaint(
-                      painter: FacePainter(
-                          facesList: faces, imageFile: image),
-                    ),
-                  ),
+          Container(
+            margin: const EdgeInsets.only(
+                top: 60, left: 30, right: 30, bottom: 0),
+            child: FittedBox(
+              child: SizedBox(
+                width: image.width.toDouble(),
+                height: image.width.toDouble(),
+                child: CustomPaint(
+                  painter: FacePainter(
+                      facesList: faces, imageFile: image),
                 ),
-              )
+              ),
+            ),
+          )
               : Container(
-                  margin: const EdgeInsets.only(top: 100),
-                  child: Image.asset(
-                    "images/logo.png",
-                    width: screenWidth - 100,
-                    height: screenWidth - 100,
-                  ),
-                ),
+            margin: const EdgeInsets.only(top: 100),
+            child: Image.asset(
+              "images/logo.png",
+              width: screenWidth - 100,
+              height: screenWidth - 100,
+            ),
+          ),
 
           Container(
             height: 50,
@@ -287,7 +288,7 @@ class FacePainter extends CustomPainter {
     }
 
     Paint p = Paint();
-    p.color = Colors.greenAccent;
+    p.color = Colors.red;
     p.style = PaintingStyle.stroke;
     p.strokeWidth = 10;
 
